@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>จองนัดหมาย | Calendly Clone</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="booking-page">
+    <!-- Header -->
+    <header class="booking-header">
+      <div class="container">
+        <a href="index.html" class="booking-logo">📅 BookingApp</a>
+        <a href="dashboard.html" class="btn btn-secondary btn-sm">เข้าสู่ระบบ</a>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="booking-main">
+      <div class="booking-container">
+        <div class="booking-card">
+          <div class="booking-grid">
+            <!-- Sidebar - Event Info -->
+            <aside class="booking-sidebar">
+              <!-- Content will be rendered by JS -->
+              <div class="host-info">
+                <div class="host-avatar">👤</div>
+                <div class="host-name">กำลังโหลด...</div>
+              </div>
+              <h2 class="event-title">กำลังโหลด...</h2>
+            </aside>
+
+            <!-- Main Content -->
+            <div class="booking-content">
+              <!-- Step 1: Select Date & Time -->
+              <div class="booking-step active" data-step="1">
+                <h3 class="step-title">เลือกวันและเวลา</h3>
+
+                <div class="d-flex gap-md" style="flex-wrap: wrap;">
+                  <!-- Calendar -->
+                  <div class="calendar-wrapper" style="flex: 1; min-width: 280px;">
+                    <div id="calendar-container">
+                      <div class="loading">
+                        <div class="spinner"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Time Slots -->
+                  <div class="time-slots-wrapper" style="flex: 1; min-width: 200px;">
+                    <div id="time-slots-container">
+                      <div class="empty-state text-muted">
+                        <p>เลือกวันที่จากปฏิทินเพื่อดูช่วงเวลาว่าง</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Recurring Options -->
+                <div class="recurring-options">
+                  <div class="recurring-toggle">
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="recurring-toggle">
+                      <span class="toggle-slider"></span>
+                    </label>
+                    <span>ตั้งนัดหมายซ้ำ (Recurring)</span>
+                  </div>
+
+                  <div class="recurring-fields">
+                    <div class="form-group">
+                      <label class="form-label">ความถี่</label>
+                      <select id="recurring-frequency" class="form-select">
+                        <option value="weekly">ทุกสัปดาห์</option>
+                        <option value="biweekly">ทุก 2 สัปดาห์</option>
+                        <option value="monthly">ทุกเดือน</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">จำนวนครั้ง</label>
+                      <input type="number" id="recurring-occurrences" class="form-input"
+                             value="4" min="2" max="12">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 2: Guest Information -->
+              <div class="booking-step" data-step="2">
+                <button type="button" class="btn btn-secondary btn-sm mb-lg" data-action="back">
+                  ← ย้อนกลับ
+                </button>
+
+                <h3 class="step-title">กรอกข้อมูลของคุณ</h3>
+
+                <div class="booking-summary" id="booking-summary">
+                  <!-- Summary will be rendered by JS -->
+                </div>
+
+                <form id="booking-form" class="booking-form">
+                  <div class="form-group">
+                    <label class="form-label">ชื่อ-นามสกุล *</label>
+                    <input type="text" name="guest_name" class="form-input"
+                           placeholder="กรอกชื่อของคุณ" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">อีเมล *</label>
+                    <input type="email" name="guest_email" class="form-input"
+                           placeholder="your@email.com" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">เบอร์โทรศัพท์</label>
+                    <input type="tel" name="guest_phone" class="form-input"
+                           placeholder="08X-XXX-XXXX">
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">หมายเหตุ / สิ่งที่ต้องการหารือ</label>
+                    <textarea name="notes" class="form-textarea"
+                              placeholder="กรอกรายละเอียดเพิ่มเติม (ถ้ามี)"></textarea>
+                  </div>
+
+                  <button type="submit" class="btn btn-primary btn-lg btn-block">
+                    ยืนยันการจอง
+                  </button>
+
+                  <p class="text-muted text-small text-center mt-md">
+                    เมื่อกดยืนยัน คุณจะได้รับอีเมลยืนยันการนัดหมาย
+                  </p>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer style="text-align: center; padding: 2rem; color: var(--gray-500); font-size: 0.875rem;">
+      <p>Powered by Make.com + Your Company</p>
+    </footer>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/booking.js"></script>
+</body>
+</html>
