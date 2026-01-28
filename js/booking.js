@@ -1,15 +1,16 @@
 /**
  * Calendly Clone - Booking Page Logic
  * =====================================
+ * สำหรับนัดหมายกับพี่ง้วง
  */
 
 class BookingPage {
   constructor() {
-    this.currentStep = 1;
+    this.currentStep = 0; // Start at step 0 (select event type)
     this.selectedDate = null;
     this.selectedTime = null;
-    this.selectedMember = null;
     this.selectedEventType = null;
+    this.eventTypeData = null;
     this.isRecurring = false;
     this.recurringOptions = {
       frequency: 'weekly',
@@ -22,77 +23,128 @@ class BookingPage {
   }
 
   async init() {
-    // Get URL parameters
-    const params = new URLSearchParams(window.location.search);
-    this.selectedMember = params.get('member') || CONFIG.TEAM_MEMBERS[0]?.id;
-    this.selectedEventType = params.get('event') || CONFIG.EVENT_TYPES[0]?.id;
-
-    // Load data
-    await this.loadEventType();
-    await this.loadMember();
-
-    // Setup UI
-    this.setupCalendar();
-    this.setupEventListeners();
+    // Render event types first
+    this.renderEventTypes();
     this.renderSidebar();
-
-    // Load initial slots
-    await this.loadAvailableSlots();
+    this.setupEventListeners();
   }
 
-  async loadEventType() {
-    const eventTypes = await API.getEventTypes();
-    this.eventTypeData = eventTypes.find(e => e.id === this.selectedEventType) || eventTypes[0];
+  renderEventTypes() {
+    const container = document.getElementById('event-types-container');
+    if (!container) return;
+
+    container.innerHTML = CONFIG.EVENT_TYPES.map(event => `
+      <div class="event-type-card" data-event-id="${event.id}" style="--event-color: ${event.color}">
+        <div class="event-type-icon">${this.getEventIcon(event)}</div>
+        <div class="event-type-name">${event.name}</div>
+        <div class="event-type-duration">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 6v6l4 2"/>
+          </svg>
+          ${this.formatDuration(event.duration)}
+          ${event.fixed_time ? `<span class="duration-badge highlight">${event.fixed_time.start} - ${event.fixed_time.end}</span>` : ''}
+        </div>
+        <div class="event-type-description">${event.description}</div>
+      </div>
+    `).join('');
+
+    // Add click listeners
+    container.querySelectorAll('.event-type-card').forEach(card => {
+      card.addEventListener('click', () => {
+        this.selectEventType(card.dataset.eventId);
+      });
+    });
   }
 
-  async loadMember() {
-    const members = await API.getTeamMembers();
-    this.memberData = members.find(m => m.id === this.selectedMember) || members[0];
+  getEventIcon(event) {
+    const duration = event.duration;
+    if (event.id === 'full-day') return '📆';
+    if (event.id === 'half-day-afternoon') return '🌅';
+    if (duration <= 30) return '⚡';
+    if (duration <= 60) return '💬';
+    if (duration <= 120) return '📊';
+    return '🎯';
+  }
+
+  formatDuration(minutes) {
+    if (minutes >= 420) return 'ทั้งวัน';
+    if (minutes >= 60) {
+      const hours = Math.floor(minutes / 60);
+      const mins = minutes % 60;
+      return mins > 0 ? `${hours} ชม. ${mins} นาที` : `${hours} ชั่วโมง`;
+    }
+    return `${minutes} นาที`;
+  }
+
+  selectEventType(eventId) {
+    this.selectedEventType = eventId;
+    this.eventTypeData = CONFIG.EVENT_TYPES.find(e => e.id === eventId);
+
+    // Update card selection state
+    document.querySelectorAll('.event-type-card').forEach(card => {
+      card.classList.toggle('selected', card.dataset.eventId === eventId);
+    });
+
+    // Show selected event info
+    const infoEl = document.getElementById('selected-event-info');
+    if (infoEl && this.eventTypeData) {
+      infoEl.innerHTML = `
+        <span>${this.getEventIcon(this.eventTypeData)}</span>
+        <span>${this.eventTypeData.name} (${this.formatDuration(this.eventTypeData.duration)})</span>
+      `;
+    }
+
+    // Go to step 1
+    this.goToStep(1);
+    this.setupCalendar();
+    this.loadAvailableSlots();
+    this.renderSidebar();
   }
 
   renderSidebar() {
     const sidebar = document.querySelector('.booking-sidebar');
-    if (!sidebar || !this.eventTypeData || !this.memberData) return;
+    if (!sidebar) return;
 
-    const locationInfo = CONFIG.LOCATION_TYPES[this.eventTypeData.location_type] || {};
+    const owner = CONFIG.OWNER;
 
     sidebar.innerHTML = `
       <div class="host-info">
         <div class="host-avatar">
-          ${this.memberData.avatar ?
-            `<img src="${this.memberData.avatar}" alt="${this.memberData.name}">` :
-            this.memberData.name.charAt(0)}
+          ${owner.NAME.charAt(0)}
         </div>
-        <div class="host-name">${this.memberData.name}</div>
+        <div class="host-name">${owner.NAME}</div>
       </div>
 
-      <h2 class="event-title">${this.eventTypeData.name}</h2>
+      <h2 class="event-title">${this.eventTypeData ? this.eventTypeData.name : 'เลือกประเภทนัดหมาย'}</h2>
 
-      <div class="event-details">
-        <div class="event-detail">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M12 6v6l4 2"/>
-          </svg>
-          <span>${this.eventTypeData.duration} นาที</span>
-        </div>
-        <div class="event-detail">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
-            <circle cx="12" cy="10" r="3"/>
-          </svg>
-          <span>${locationInfo.icon || ''} ${locationInfo.label || 'ออนไลน์'}</span>
-        </div>
-        ${this.eventTypeData.description ? `
+      ${this.eventTypeData ? `
+        <div class="event-details">
           <div class="event-detail">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-              <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
             </svg>
-            <span>${this.eventTypeData.description}</span>
+            <span>${this.formatDuration(this.eventTypeData.duration)}</span>
           </div>
-        ` : ''}
-      </div>
+          <div class="event-detail">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+            <span>📹 Google Meet</span>
+          </div>
+          ${this.eventTypeData.description ? `
+            <div class="event-detail">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+              </svg>
+              <span>${this.eventTypeData.description}</span>
+            </div>
+          ` : ''}
+        </div>
+      ` : ''}
     `;
   }
 
@@ -168,13 +220,11 @@ class BookingPage {
       const isOff = !workingHours;
       const isToday = date.getTime() === today.getTime();
       const isSelected = this.selectedDate === dateStr;
-      const hasSlots = this.availableSlots[dateStr]?.length > 0;
 
       let classes = ['calendar-day'];
       if (isPast || isTooFar || isOff) classes.push('disabled');
       if (isToday) classes.push('today');
       if (isSelected) classes.push('selected');
-      if (hasSlots) classes.push('has-slots');
 
       html += `<div class="${classes.join(' ')}" data-date="${dateStr}">${day}</div>`;
     }
@@ -185,27 +235,50 @@ class BookingPage {
   navigateMonth(direction) {
     this.currentMonth.setMonth(this.currentMonth.getMonth() + direction);
     this.renderCalendar();
-    this.loadAvailableSlots();
   }
 
   async loadAvailableSlots() {
-    const year = this.currentMonth.getFullYear();
-    const month = this.currentMonth.getMonth();
+    // Generate mock slots based on event type
+    if (!this.eventTypeData) return;
 
-    const startDate = new Date(year, month, 1).toISOString().split('T')[0];
-    const endDate = new Date(year, month + 1, 0).toISOString().split('T')[0];
+    const workingStart = '10:00';
+    const workingEnd = '17:00';
+    const duration = this.eventTypeData.duration;
 
-    try {
-      this.availableSlots = await API.getAvailableSlots(
-        this.selectedMember,
-        this.selectedEventType,
-        startDate,
-        endDate
-      );
-      this.renderCalendar();
-    } catch (error) {
-      console.error('Failed to load slots:', error);
+    // If fixed time (like full day or half day), only show that option
+    if (this.eventTypeData.fixed_time) {
+      this.availableSlots = {
+        fixed: [{
+          time: this.eventTypeData.fixed_time.start,
+          endTime: this.eventTypeData.fixed_time.end,
+          display: `${this.eventTypeData.fixed_time.start} - ${this.eventTypeData.fixed_time.end}`
+        }]
+      };
+      return;
     }
+
+    // Generate time slots
+    const slots = [];
+    const [startHour, startMin] = workingStart.split(':').map(Number);
+    const [endHour, endMin] = workingEnd.split(':').map(Number);
+    const startMinutes = startHour * 60 + startMin;
+    const endMinutes = endHour * 60 + endMin;
+
+    for (let mins = startMinutes; mins + duration <= endMinutes; mins += 30) {
+      const hour = Math.floor(mins / 60);
+      const min = mins % 60;
+      const endMins = mins + duration;
+      const endHr = Math.floor(endMins / 60);
+      const endMn = endMins % 60;
+
+      slots.push({
+        time: `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`,
+        endTime: `${endHr.toString().padStart(2, '0')}:${endMn.toString().padStart(2, '0')}`,
+        display: `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')} - ${endHr.toString().padStart(2, '0')}:${endMn.toString().padStart(2, '0')}`
+      });
+    }
+
+    this.availableSlots = { default: slots };
   }
 
   selectDate(dateStr) {
@@ -219,15 +292,19 @@ class BookingPage {
     const container = document.getElementById('time-slots-container');
     if (!container || !this.selectedDate) return;
 
-    const slots = this.availableSlots[this.selectedDate] || [];
     const date = new Date(this.selectedDate);
     const dateDisplay = `${THAI_DAYS[date.getDay()]}ที่ ${date.getDate()} ${THAI_MONTHS[date.getMonth()]}`;
 
-    if (slots.length === 0) {
+    // Get slots
+    let slots = this.eventTypeData?.fixed_time
+      ? this.availableSlots.fixed
+      : this.availableSlots.default;
+
+    if (!slots || slots.length === 0) {
       container.innerHTML = `
         <div class="time-slots-date">${dateDisplay}</div>
         <div class="empty-state">
-          <p>ไม่มีช่วงเวลาว่างในวันนี้</p>
+          <p>ไม่มีช่วงเวลาว่าง</p>
         </div>
       `;
       return;
@@ -238,8 +315,8 @@ class BookingPage {
       <div class="time-slots-grid">
         ${slots.map(slot => `
           <div class="time-slot ${this.selectedTime === slot.time ? 'selected' : ''}"
-               data-time="${slot.time}">
-            <span class="time-slot-time">${slot.time}</span>
+               data-time="${slot.time}" data-end="${slot.endTime}">
+            <span class="time-slot-time">${slot.display}</span>
             <span class="time-slot-confirm">ยืนยัน</span>
           </div>
         `).join('')}
@@ -254,14 +331,15 @@ class BookingPage {
           // Confirm selection - go to next step
           this.goToStep(2);
         } else {
-          this.selectTime(time);
+          this.selectTime(time, slot.dataset.end);
         }
       });
     });
   }
 
-  selectTime(time) {
+  selectTime(time, endTime) {
     this.selectedTime = time;
+    this.selectedEndTime = endTime;
     this.renderTimeSlots();
   }
 
@@ -301,19 +379,29 @@ class BookingPage {
     document.querySelectorAll('[data-action="back"]').forEach(btn => {
       btn.addEventListener('click', () => this.goToStep(this.currentStep - 1));
     });
+
+    // Back to types button
+    document.querySelectorAll('[data-action="back-to-types"]').forEach(btn => {
+      btn.addEventListener('click', () => this.goToStep(0));
+    });
   }
 
   goToStep(step) {
-    if (step < 1) step = 1;
+    if (step < 0) step = 0;
     if (step > 2) step = 2;
 
     this.currentStep = step;
 
     document.querySelectorAll('.booking-step').forEach(el => {
       el.classList.remove('active');
+      el.style.display = 'none';
     });
 
-    document.querySelector(`[data-step="${step}"]`)?.classList.add('active');
+    const stepEl = document.querySelector(`[data-step="${step}"]`);
+    if (stepEl) {
+      stepEl.classList.add('active');
+      stepEl.style.display = 'block';
+    }
 
     if (step === 2) {
       this.renderBookingSummary();
@@ -327,20 +415,26 @@ class BookingPage {
     const date = new Date(this.selectedDate);
     const dateDisplay = `${THAI_DAYS[date.getDay()]}ที่ ${date.getDate()} ${THAI_MONTHS[date.getMonth()]} ${date.getFullYear() + 543}`;
 
-    const locationInfo = CONFIG.LOCATION_TYPES[this.eventTypeData?.location_type] || {};
-
     container.innerHTML = `
+      <div class="summary-item">
+        <span class="summary-icon">🎯</span>
+        <span class="summary-text">${this.eventTypeData?.name || 'การนัดหมาย'}</span>
+      </div>
       <div class="summary-item">
         <span class="summary-icon">📅</span>
         <span class="summary-text">${dateDisplay}</span>
       </div>
       <div class="summary-item">
         <span class="summary-icon">🕐</span>
-        <span class="summary-text">${this.selectedTime} (${this.eventTypeData?.duration || 30} นาที)</span>
+        <span class="summary-text">${this.selectedTime} - ${this.selectedEndTime} (${this.formatDuration(this.eventTypeData?.duration || 30)})</span>
       </div>
       <div class="summary-item">
-        <span class="summary-icon">${locationInfo.icon || '📍'}</span>
-        <span class="summary-text">${locationInfo.label || 'ออนไลน์'}</span>
+        <span class="summary-icon">👤</span>
+        <span class="summary-text">กับ ${CONFIG.OWNER.NAME}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-icon">📹</span>
+        <span class="summary-text">Google Meet (จะส่งลิงก์ให้ทางอีเมล)</span>
       </div>
       ${this.isRecurring ? `
         <div class="summary-item">
@@ -363,9 +457,13 @@ class BookingPage {
     // Get form data
     const formData = {
       event_type_id: this.selectedEventType,
-      member_id: this.selectedMember,
+      event_type_name: this.eventTypeData?.name,
+      duration: this.eventTypeData?.duration,
+      owner_email: CONFIG.OWNER.EMAIL,
+      owner_name: CONFIG.OWNER.NAME,
       date: this.selectedDate,
       time: this.selectedTime,
+      end_time: this.selectedEndTime,
       guest_name: form.guest_name.value,
       guest_email: form.guest_email.value,
       guest_phone: form.guest_phone?.value || '',
@@ -390,7 +488,6 @@ class BookingPage {
           ...formData,
           frequency: this.recurringOptions.frequency,
           occurrences: this.recurringOptions.occurrences,
-          duration: this.eventTypeData?.duration || 30,
         });
       } else {
         result = await API.createBooking(formData);
@@ -402,7 +499,6 @@ class BookingPage {
           ...formData,
           booking: result.booking || result,
           eventType: this.eventTypeData,
-          member: this.memberData,
           isRecurring: this.isRecurring,
           recurringOptions: this.isRecurring ? this.recurringOptions : null,
         }));

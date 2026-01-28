@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>จองนัดหมาย | Calendly Clone</title>
+  <title>จองนัดหมาย | พี่ง้วง</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -36,9 +36,21 @@
 
             <!-- Main Content -->
             <div class="booking-content">
+              <!-- Step 0: Select Event Type -->
+              <div class="booking-step active" data-step="0">
+                <h3 class="step-title">เลือกประเภทการนัดหมาย</h3>
+                <div id="event-types-container" class="event-types-grid">
+                  <!-- Event types will be rendered by JS -->
+                </div>
+              </div>
+
               <!-- Step 1: Select Date & Time -->
-              <div class="booking-step active" data-step="1">
+              <div class="booking-step" data-step="1">
+                <button type="button" class="btn btn-secondary btn-sm mb-lg" data-action="back-to-types">
+                  ← เลือกประเภทใหม่
+                </button>
                 <h3 class="step-title">เลือกวันและเวลา</h3>
+                <p class="selected-event-info" id="selected-event-info"></p>
 
                 <div class="d-flex gap-md" style="flex-wrap: wrap;">
                   <!-- Calendar -->
@@ -89,7 +101,7 @@
               </div>
 
               <!-- Step 2: Guest Information -->
-              <div class="booking-step" data-step="2">
+              <div class="booking-step" data-step="2" style="display: none;">
                 <button type="button" class="btn btn-secondary btn-sm mb-lg" data-action="back">
                   ← ย้อนกลับ
                 </button>
@@ -142,7 +154,7 @@
 
     <!-- Footer -->
     <footer style="text-align: center; padding: 2rem; color: var(--gray-500); font-size: 0.875rem;">
-      <p>Powered by Make.com + Your Company</p>
+      <p>นัดหมายกับพี่ง้วง | Powered by Make.com</p>
     </footer>
   </div>
 

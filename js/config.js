@@ -8,7 +8,7 @@ const CONFIG = {
   // Make.com Webhook URLs
   // แก้ไข URLs เหล่านี้หลังจากสร้าง Scenarios ใน Make แล้ว
   API: {
-    GET_AVAILABLE_SLOTS: 'YOUR_WEBHOOK_URL_HERE',
+    GET_AVAILABLE_SLOTS: 'https://hook.us1.make.com/khbt82jzes8os7xwj8gf8enf5p9yr5',
     CREATE_BOOKING: 'YOUR_WEBHOOK_URL_HERE',
     CANCEL_BOOKING: 'YOUR_WEBHOOK_URL_HERE',
     GET_TEAM_BOOKINGS: 'YOUR_WEBHOOK_URL_HERE',
@@ -30,67 +30,101 @@ const CONFIG = {
     MIN_NOTICE_HOURS: 24, // ต้องจองล่วงหน้าอย่างน้อยกี่ชั่วโมง
   },
 
+  // Owner Info (เจ้าของปฏิทิน)
+  OWNER: {
+    NAME: 'พี่ง้วง',
+    EMAIL: 'd.chawalid@gmail.com',
+    CALENDAR_ID: 'd.chawalid@gmail.com',
+  },
+
   // Company Info
   COMPANY: {
-    NAME: 'Your Company',
+    NAME: 'พี่ง้วง - นัดหมาย',
     LOGO: './assets/images/logo.png',
     PRIMARY_COLOR: '#0069ff',
   },
 
-  // Working Hours (default)
+  // Working Hours (เวลาทำงานของพี่ง้วง)
   WORKING_HOURS: {
     0: null, // Sunday - off
-    1: { start: '09:00', end: '17:00' }, // Monday
-    2: { start: '09:00', end: '17:00' }, // Tuesday
-    3: { start: '09:00', end: '17:00' }, // Wednesday
-    4: { start: '09:00', end: '17:00' }, // Thursday
-    5: { start: '09:00', end: '17:00' }, // Friday
+    1: { start: '10:00', end: '17:00' }, // Monday
+    2: { start: '10:00', end: '17:00' }, // Tuesday
+    3: { start: '10:00', end: '17:00' }, // Wednesday
+    4: { start: '10:00', end: '17:00' }, // Thursday
+    5: { start: '10:00', end: '17:00' }, // Friday
     6: null, // Saturday - off
   },
 
-  // Event Types (mock data - จะถูกแทนที่ด้วยข้อมูลจาก API)
+  // Event Types - ตัวเลือกการนัดหมาย
   EVENT_TYPES: [
     {
-      id: 'meeting-30',
-      name: 'ประชุมทั่วไป',
+      id: 'quick-30',
+      name: 'นัดด่วน 30 นาที',
       duration: 30,
-      description: 'การประชุมแบบสั้น 30 นาที',
-      color: '#0069ff',
-      location_type: 'google_meet',
-    },
-    {
-      id: 'meeting-60',
-      name: 'ประชุมเชิงลึก',
-      duration: 60,
-      description: 'การประชุมเชิงลึก 1 ชั่วโมง',
+      description: 'ประชุมสั้นๆ 30 นาที',
       color: '#10b981',
       location_type: 'google_meet',
     },
     {
-      id: 'consultation',
-      name: 'ให้คำปรึกษา',
-      duration: 45,
-      description: 'ปรึกษาเรื่องงาน',
+      id: 'meeting-1hr',
+      name: 'ประชุม 1 ชั่วโมง',
+      duration: 60,
+      description: 'ประชุมมาตรฐาน 1 ชั่วโมง',
+      color: '#0069ff',
+      location_type: 'google_meet',
+    },
+    {
+      id: 'meeting-2hr',
+      name: 'ประชุม 2 ชั่วโมง',
+      duration: 120,
+      description: 'ประชุมเชิงลึก 2 ชั่วโมง',
+      color: '#8b5cf6',
+      location_type: 'google_meet',
+    },
+    {
+      id: 'meeting-3hr',
+      name: 'ประชุม 3 ชั่วโมง',
+      duration: 180,
+      description: 'ประชุมยาว 3 ชั่วโมง',
       color: '#f59e0b',
-      location_type: 'phone',
+      location_type: 'google_meet',
+    },
+    {
+      id: 'meeting-4hr',
+      name: 'ประชุม 4 ชั่วโมง',
+      duration: 240,
+      description: 'Workshop หรือ Training 4 ชั่วโมง',
+      color: '#ec4899',
+      location_type: 'google_meet',
+    },
+    {
+      id: 'half-day-afternoon',
+      name: 'ครึ่งวันบ่าย',
+      duration: 240,
+      description: 'จองช่วงบ่าย 13:00 - 17:00',
+      color: '#f97316',
+      location_type: 'google_meet',
+      fixed_time: { start: '13:00', end: '17:00' },
+    },
+    {
+      id: 'full-day',
+      name: 'ทั้งวัน',
+      duration: 420,
+      description: 'จองทั้งวัน 10:00 - 17:00',
+      color: '#ef4444',
+      location_type: 'google_meet',
+      fixed_time: { start: '10:00', end: '17:00' },
     },
   ],
 
-  // Team Members (mock data - จะถูกแทนที่ด้วยข้อมูลจาก API)
+  // เจ้าของปฏิทินคนเดียว
   TEAM_MEMBERS: [
     {
-      id: 'member-1',
-      name: 'สมชาย ใจดี',
-      email: 'somchai@company.com',
+      id: 'owner',
+      name: 'พี่ง้วง',
+      email: 'd.chawalid@gmail.com',
       avatar: '',
-      role: 'admin',
-    },
-    {
-      id: 'member-2',
-      name: 'สมหญิง รักงาน',
-      email: 'somying@company.com',
-      avatar: '',
-      role: 'member',
+      role: 'owner',
     },
   ],
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BookingApp - ระบบนัดหมายออนไลน์</title>
+  <title>นัดหมายกับพี่ง้วง</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -34,108 +34,74 @@
       padding: 1rem 2rem;
     }
 
-    .features {
+    .owner-section {
       padding: 4rem 0;
       background: white;
     }
 
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-      margin-top: 3rem;
-    }
-
-    .feature-card {
+    .owner-card {
+      max-width: 500px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 1rem;
+      padding: 3rem;
       text-align: center;
-      padding: 2rem;
+      box-shadow: var(--shadow-xl);
     }
 
-    .feature-icon {
-      width: 64px;
-      height: 64px;
-      border-radius: 16px;
-      background: var(--primary-light);
+    .owner-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0069ff 0%, #00c6ff 100%);
+      color: white;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 1rem;
-      font-size: 2rem;
+      font-size: 3rem;
+      font-weight: 600;
+      margin: 0 auto 1.5rem;
     }
 
-    .feature-card h3 {
+    .owner-name {
+      font-size: 1.5rem;
+      font-weight: 700;
       margin-bottom: 0.5rem;
     }
 
-    .feature-card p {
+    .owner-email {
       color: var(--gray-500);
+      margin-bottom: 1.5rem;
     }
 
-    .team-section {
+    .event-types-preview {
       padding: 4rem 0;
       background: var(--gray-50);
     }
 
-    .team-grid {
+    .event-preview-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
       margin-top: 2rem;
     }
 
-    .team-member-card {
+    .event-preview-card {
       background: white;
-      border-radius: 1rem;
-      padding: 2rem;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
       text-align: center;
-      box-shadow: var(--shadow-md);
-      transition: transform 0.2s;
+      border-left: 4px solid var(--event-color, var(--primary));
     }
 
-    .team-member-card:hover {
-      transform: translateY(-4px);
-    }
-
-    .team-member-avatar {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: var(--primary-light);
-      color: var(--primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-      font-weight: 600;
-      margin: 0 auto 1rem;
-    }
-
-    .team-member-name {
-      font-weight: 600;
+    .event-preview-card h4 {
       margin-bottom: 0.25rem;
     }
 
-    .team-member-role {
+    .event-preview-card p {
       color: var(--gray-500);
       font-size: 0.875rem;
-      margin-bottom: 1rem;
-    }
-
-    .cta-section {
-      padding: 4rem 0;
-      background: var(--secondary);
-      color: white;
-      text-align: center;
-    }
-
-    .cta-section h2 {
-      color: white;
-      margin-bottom: 1rem;
-    }
-
-    .cta-section p {
-      opacity: 0.8;
-      margin-bottom: 2rem;
+      margin: 0;
     }
 
     .footer {
@@ -159,12 +125,6 @@
       text-decoration: none;
     }
 
-    .nav-links {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-    }
-
     header {
       background: white;
       box-shadow: var(--shadow-sm);
@@ -179,11 +139,9 @@
   <header>
     <div class="container">
       <nav class="nav">
-        <a href="index.html" class="nav-logo">📅 BookingApp</a>
+        <a href="index.html" class="nav-logo">📅 พี่ง้วง</a>
         <div class="nav-links">
-          <a href="#features">ฟีเจอร์</a>
-          <a href="#team">ทีมงาน</a>
-          <a href="dashboard.html" class="btn btn-secondary btn-sm">เข้าสู่ระบบ</a>
+          <a href="dashboard.html" class="btn btn-secondary btn-sm">Dashboard</a>
         </div>
       </nav>
     </div>
@@ -192,112 +150,77 @@
   <!-- Hero -->
   <section class="hero">
     <div class="container">
-      <h1>📅 จัดการนัดหมายได้ง่ายๆ</h1>
-      <p>ระบบนัดหมายออนไลน์สำหรับทีมของคุณ ให้ลูกค้าจองเวลาประชุมได้สะดวก เชื่อมต่อกับ Google Calendar อัตโนมัติ</p>
-      <div class="d-flex gap-md" style="justify-content: center; flex-wrap: wrap;">
-        <a href="book.html" class="btn btn-primary btn-lg">จองนัดหมายเลย</a>
-        <a href="dashboard.html" class="btn btn-outline btn-lg" style="border-color: white; color: white;">เข้าสู่ Dashboard</a>
+      <h1>📅 นัดหมายกับพี่ง้วง</h1>
+      <p>เลือกช่วงเวลาที่สะดวกเพื่อนัดประชุม ปรึกษางาน หรือ Workshop ได้ตามต้องการ</p>
+      <a href="book.html" class="btn btn-primary btn-lg">จองนัดหมายเลย</a>
+    </div>
+  </section>
+
+  <!-- Owner Section -->
+  <section class="owner-section">
+    <div class="container">
+      <div class="owner-card">
+        <div class="owner-avatar">ง</div>
+        <div class="owner-name">พี่ง้วง</div>
+        <div class="owner-email">d.chawalid@gmail.com</div>
+        <p style="color: var(--gray-600); margin-bottom: 1.5rem;">
+          พร้อมให้บริการ จันทร์ - ศุกร์<br>
+          เวลา 10:00 - 17:00 น.
+        </p>
+        <a href="book.html" class="btn btn-primary btn-lg btn-block">
+          จองนัดหมาย
+        </a>
       </div>
     </div>
   </section>
 
-  <!-- Features -->
-  <section class="features" id="features">
+  <!-- Event Types Preview -->
+  <section class="event-types-preview">
     <div class="container">
-      <h2 class="text-center">ฟีเจอร์หลัก</h2>
-      <p class="text-center text-muted">ครบทุกความต้องการสำหรับการจัดการนัดหมาย</p>
+      <h2 class="text-center">ประเภทการนัดหมาย</h2>
+      <p class="text-center text-muted">เลือกรูปแบบที่เหมาะกับความต้องการของคุณ</p>
 
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon">📅</div>
-          <h3>เลือกวันเวลาได้ง่าย</h3>
-          <p>ปฏิทินที่ใช้งานง่าย แสดงเฉพาะช่วงเวลาที่ว่างอยู่ ไม่ต้องโทรนัดไปมา</p>
+      <div class="event-preview-grid">
+        <div class="event-preview-card" style="--event-color: #10b981">
+          <h4>นัดด่วน</h4>
+          <p>30 นาที</p>
         </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">🔗</div>
-          <h3>เชื่อม Google Calendar</h3>
-          <p>ซิงก์กับ Google Calendar อัตโนมัติ ตรวจสอบเวลาว่างแบบ Real-time</p>
+        <div class="event-preview-card" style="--event-color: #0069ff">
+          <h4>ประชุม 1 ชม.</h4>
+          <p>60 นาที</p>
         </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">📹</div>
-          <h3>Google Meet อัตโนมัติ</h3>
-          <p>สร้างลิงก์ Google Meet โดยอัตโนมัติเมื่อมีการจอง</p>
+        <div class="event-preview-card" style="--event-color: #8b5cf6">
+          <h4>ประชุม 2 ชม.</h4>
+          <p>120 นาที</p>
         </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">🔄</div>
-          <h3>นัดหมายซ้ำ (Recurring)</h3>
-          <p>ตั้งนัดประจำสัปดาห์หรือประจำเดือนได้ในครั้งเดียว</p>
+        <div class="event-preview-card" style="--event-color: #f59e0b">
+          <h4>ประชุม 3 ชม.</h4>
+          <p>180 นาที</p>
         </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">👥</div>
-          <h3>รองรับหลายคน</h3>
-          <p>จัดการนัดหมายสำหรับทีมงานหลายคน แต่ละคนมีปฏิทินของตัวเอง</p>
+        <div class="event-preview-card" style="--event-color: #ec4899">
+          <h4>ประชุม 4 ชม.</h4>
+          <p>240 นาที</p>
         </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">📧</div>
-          <h3>แจ้งเตือนอัตโนมัติ</h3>
-          <p>ส่งอีเมลยืนยันและเตือนก่อนนัดหมายโดยอัตโนมัติ</p>
+        <div class="event-preview-card" style="--event-color: #f97316">
+          <h4>ครึ่งวันบ่าย</h4>
+          <p>13:00 - 17:00</p>
+        </div>
+        <div class="event-preview-card" style="--event-color: #ef4444">
+          <h4>ทั้งวัน</h4>
+          <p>10:00 - 17:00</p>
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- Team Section -->
-  <section class="team-section" id="team">
-    <div class="container">
-      <h2 class="text-center">เลือกผู้ให้บริการ</h2>
-      <p class="text-center text-muted">จองนัดหมายกับทีมงานของเราได้ทันที</p>
-
-      <div class="team-grid">
-        <div class="team-member-card">
-          <div class="team-member-avatar">ส</div>
-          <div class="team-member-name">สมชาย ใจดี</div>
-          <div class="team-member-role">ผู้จัดการ</div>
-          <a href="book.html?member=member-1&event=meeting-30" class="btn btn-primary btn-block">
-            จองนัดหมาย
-          </a>
-        </div>
-
-        <div class="team-member-card">
-          <div class="team-member-avatar">ห</div>
-          <div class="team-member-name">สมหญิง รักงาน</div>
-          <div class="team-member-role">ที่ปรึกษา</div>
-          <a href="book.html?member=member-2&event=meeting-30" class="btn btn-primary btn-block">
-            จองนัดหมาย
-          </a>
-        </div>
-
-        <div class="team-member-card">
-          <div class="team-member-avatar">ศ</div>
-          <div class="team-member-name">สมศักดิ์ ทำดี</div>
-          <div class="team-member-role">ฝ่ายขาย</div>
-          <a href="book.html?member=member-3&event=meeting-30" class="btn btn-primary btn-block">
-            จองนัดหมาย
-          </a>
-        </div>
+      <div class="text-center" style="margin-top: 2rem;">
+        <a href="book.html" class="btn btn-primary btn-lg">เลือกและจองเลย</a>
       </div>
-    </div>
-  </section>
-
-  <!-- CTA Section -->
-  <section class="cta-section">
-    <div class="container">
-      <h2>พร้อมเริ่มใช้งานแล้วหรือยัง?</h2>
-      <p>สร้างระบบนัดหมายของคุณเองวันนี้</p>
-      <a href="dashboard.html" class="btn btn-primary btn-lg">เข้าสู่ Dashboard</a>
     </div>
   </section>
 
   <!-- Footer -->
   <footer class="footer">
     <div class="container">
-      <p>Built with ❤️ using Make.com MCP</p>
-      <p>© 2026 BookingApp - Calendly Clone</p>
+      <p>นัดหมายกับพี่ง้วง | Powered by Make.com</p>
     </div>
   </footer>
 </body>
