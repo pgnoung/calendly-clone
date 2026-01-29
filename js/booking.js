@@ -241,7 +241,8 @@ class BookingPage {
     // Generate mock slots based on event type
     if (!this.eventTypeData) return;
 
-    const workingStart = '10:00';
+    // Use default working hours, actual hours will be set per-day in renderTimeSlots
+    const workingStart = '09:00';
     const workingEnd = '17:00';
     const duration = this.eventTypeData.duration;
 
@@ -288,17 +289,51 @@ class BookingPage {
     this.renderTimeSlots();
   }
 
+  generateSlotsForDay(workingStart, workingEnd, duration) {
+    const slots = [];
+    const [startHour, startMin] = workingStart.split(':').map(Number);
+    const [endHour, endMin] = workingEnd.split(':').map(Number);
+    const startMinutes = startHour * 60 + startMin;
+    const endMinutes = endHour * 60 + endMin;
+
+    for (let mins = startMinutes; mins + duration <= endMinutes; mins += 30) {
+      const hour = Math.floor(mins / 60);
+      const min = mins % 60;
+      const endMins = mins + duration;
+      const endHr = Math.floor(endMins / 60);
+      const endMn = endMins % 60;
+
+      slots.push({
+        time: `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`,
+        endTime: `${endHr.toString().padStart(2, '0')}:${endMn.toString().padStart(2, '0')}`,
+        display: `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')} - ${endHr.toString().padStart(2, '0')}:${endMn.toString().padStart(2, '0')}`
+      });
+    }
+
+    return slots;
+  }
+
   renderTimeSlots() {
     const container = document.getElementById('time-slots-container');
     if (!container || !this.selectedDate) return;
 
     const date = new Date(this.selectedDate);
+    const dayOfWeek = date.getDay();
     const dateDisplay = `${THAI_DAYS[date.getDay()]}ที่ ${date.getDate()} ${THAI_MONTHS[date.getMonth()]}`;
 
-    // Get slots
-    let slots = this.eventTypeData?.fixed_time
-      ? this.availableSlots.fixed
-      : this.availableSlots.default;
+    // Get working hours for selected day
+    const workingHours = CONFIG.WORKING_HOURS[dayOfWeek];
+
+    // Get slots - generate based on the day's working hours
+    let slots;
+    if (this.eventTypeData?.fixed_time) {
+      slots = this.availableSlots.fixed;
+    } else if (workingHours) {
+      // Generate slots for this specific day's working hours
+      slots = this.generateSlotsForDay(workingHours.start, workingHours.end, this.eventTypeData.duration);
+    } else {
+      slots = [];
+    }
 
     if (!slots || slots.length === 0) {
       container.innerHTML = `
