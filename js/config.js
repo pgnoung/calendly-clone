@@ -9,9 +9,9 @@ const CONFIG = {
   // แก้ไข URLs เหล่านี้หลังจากสร้าง Scenarios ใน Make แล้ว
   API: {
     GET_AVAILABLE_SLOTS: 'https://hook.us1.make.com/khbt82jzes8os7xwj8gf8enf5p9yr5',
-    CREATE_BOOKING: 'YOUR_WEBHOOK_URL_HERE',
+    CREATE_BOOKING: 'https://hook.us1.make.com/u894fx02zf8wzpytsklamytrec9g6',
     CANCEL_BOOKING: 'YOUR_WEBHOOK_URL_HERE',
-    GET_TEAM_BOOKINGS: 'YOUR_WEBHOOK_URL_HERE',
+    GET_TEAM_BOOKINGS: 'https://hook.us1.make.com/fgzoj4fg4y8ydz4h1rshtndtry7mvs',
     CREATE_RECURRING: 'YOUR_WEBHOOK_URL_HERE',
     GET_TEAM_MEMBERS: 'YOUR_WEBHOOK_URL_HERE',
     GET_EVENT_TYPES: 'YOUR_WEBHOOK_URL_HERE',
