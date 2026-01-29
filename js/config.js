@@ -1,6 +1,6 @@
 /**
- * Calendly Clone - Configuration
- * ================================
+ * Just in time meeting - Configuration
+ * =====================================
  * กรุณาแก้ไข URLs ด้านล่างให้ตรงกับ Make Webhooks ของคุณ
  */
 
@@ -26,7 +26,7 @@ const CONFIG = {
     SLOT_DURATION: 30, // minutes
     BUFFER_BEFORE: 0,
     BUFFER_AFTER: 0,
-    ADVANCE_BOOKING_DAYS: 60, // สามารถจองล่วงหน้าได้กี่วัน
+    ADVANCE_BOOKING_DAYS: 180, // สามารถจองล่วงหน้าได้กี่วัน (6 เดือน)
     MIN_NOTICE_HOURS: 24, // ต้องจองล่วงหน้าอย่างน้อยกี่ชั่วโมง
   },
 
@@ -173,7 +173,77 @@ const THAI_MONTHS_SHORT = [
   'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
 ];
 
+// =============================================
+// Storage Functions - บันทึกและโหลดค่าจาก localStorage
+// =============================================
+
+const STORAGE_KEYS = {
+  WORKING_HOURS: 'jitm_working_hours',
+  EVENT_TYPES: 'jitm_event_types',
+  SETTINGS: 'jitm_settings',
+};
+
+// โหลด Working Hours จาก localStorage (ถ้ามี)
+function loadWorkingHours() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEYS.WORKING_HOURS);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (e) {
+    console.warn('Could not load working hours from localStorage:', e);
+  }
+  return CONFIG.WORKING_HOURS;
+}
+
+// บันทึก Working Hours ลง localStorage
+function saveWorkingHours(hours) {
+  try {
+    localStorage.setItem(STORAGE_KEYS.WORKING_HOURS, JSON.stringify(hours));
+    // อัพเดท CONFIG ด้วย
+    Object.assign(CONFIG.WORKING_HOURS, hours);
+    return true;
+  } catch (e) {
+    console.error('Could not save working hours:', e);
+    return false;
+  }
+}
+
+// โหลด Event Types จาก localStorage (ถ้ามี)
+function loadEventTypes() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEYS.EVENT_TYPES);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (e) {
+    console.warn('Could not load event types from localStorage:', e);
+  }
+  return CONFIG.EVENT_TYPES;
+}
+
+// บันทึก Event Types ลง localStorage
+function saveEventTypes(eventTypes) {
+  try {
+    localStorage.setItem(STORAGE_KEYS.EVENT_TYPES, JSON.stringify(eventTypes));
+    CONFIG.EVENT_TYPES = eventTypes;
+    return true;
+  } catch (e) {
+    console.error('Could not save event types:', e);
+    return false;
+  }
+}
+
+// ฟังก์ชันรวมสำหรับใช้ค่าจาก localStorage แทน default
+function getWorkingHours() {
+  return loadWorkingHours();
+}
+
+function getEventTypes() {
+  return loadEventTypes();
+}
+
 // Export for use in other files
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { CONFIG, THAI_DAYS, THAI_DAYS_SHORT, THAI_MONTHS, THAI_MONTHS_SHORT };
+  module.exports = { CONFIG, THAI_DAYS, THAI_DAYS_SHORT, THAI_MONTHS, THAI_MONTHS_SHORT, loadWorkingHours, saveWorkingHours, loadEventTypes, saveEventTypes, getWorkingHours, getEventTypes, STORAGE_KEYS };
 }

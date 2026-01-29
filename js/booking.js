@@ -1,6 +1,6 @@
 /**
- * Calendly Clone - Booking Page Logic
- * =====================================
+ * Just in time meeting - Booking Page Logic
+ * ==========================================
  * สำหรับนัดหมายกับพี่ง้วง
  */
 
@@ -33,7 +33,7 @@ class BookingPage {
     const container = document.getElementById('event-types-container');
     if (!container) return;
 
-    container.innerHTML = CONFIG.EVENT_TYPES.map(event => `
+    container.innerHTML = getEventTypes().map(event => `
       <div class="event-type-card" data-event-id="${event.id}" style="--event-color: ${event.color}">
         <div class="event-type-icon">${this.getEventIcon(event)}</div>
         <div class="event-type-name">${event.name}</div>
@@ -79,7 +79,7 @@ class BookingPage {
 
   selectEventType(eventId) {
     this.selectedEventType = eventId;
-    this.eventTypeData = CONFIG.EVENT_TYPES.find(e => e.id === eventId);
+    this.eventTypeData = getEventTypes().find(e => e.id === eventId);
 
     // Update card selection state
     document.querySelectorAll('.event-type-card').forEach(card => {
@@ -213,7 +213,7 @@ class BookingPage {
       const date = new Date(year, month, day);
       const dateStr = date.toISOString().split('T')[0];
       const dayOfWeek = date.getDay();
-      const workingHours = CONFIG.WORKING_HOURS[dayOfWeek];
+      const workingHours = getWorkingHours()[dayOfWeek];
 
       const isPast = date < today;
       const isTooFar = date > maxDate;
@@ -322,7 +322,7 @@ class BookingPage {
     const dateDisplay = `${THAI_DAYS[date.getDay()]}ที่ ${date.getDate()} ${THAI_MONTHS[date.getMonth()]}`;
 
     // Get working hours for selected day
-    const workingHours = CONFIG.WORKING_HOURS[dayOfWeek];
+    const workingHours = getWorkingHours()[dayOfWeek];
 
     // Get slots - generate based on the day's working hours
     let slots;

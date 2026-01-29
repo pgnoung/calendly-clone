@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ตั้งค่า | Calendly Clone</title>
+  <title>ตั้งค่า | Just in time meeting</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -13,7 +13,7 @@
   <div class="dashboard">
     <!-- Sidebar -->
     <aside class="sidebar">
-      <div class="sidebar-logo">📅 BookingApp</div>
+      <div class="sidebar-logo">📅 Just in time</div>
 
       <nav>
         <ul class="sidebar-nav">
@@ -336,12 +336,17 @@
           </div>
           <div class="form-group">
             <label class="form-label">รูปแบบการประชุม</label>
-            <select class="form-select" name="location_type">
-              <option value="google_meet">📹 Google Meet</option>
+            <select class="form-select" name="location_type" id="location-type-select" onchange="toggleMeetingLinkField()">
+              <option value="google_meet">📹 Google Meet (สร้างลิงก์อัตโนมัติ)</option>
               <option value="zoom">💻 Zoom</option>
               <option value="phone">📞 โทรศัพท์</option>
               <option value="in_person">📍 พบหน้า</option>
             </select>
+          </div>
+          <div class="form-group" id="meeting-link-group" style="display: none;">
+            <label class="form-label">ลิงก์การประชุม</label>
+            <input type="url" class="form-input" name="meeting_link" id="meeting-link-input" placeholder="https://zoom.us/j/xxxxxxxxx หรือเบอร์โทรศัพท์">
+            <small class="text-muted" id="meeting-link-hint">กรอกลิงก์ Zoom Meeting หรือข้อมูลสถานที่</small>
           </div>
           <div class="form-group">
             <label class="form-label">คำอธิบาย</label>
@@ -432,15 +437,53 @@
       document.getElementById(id).classList.remove('active');
     }
 
+    // แสดง/ซ่อน Meeting Link ตามประเภทการประชุม
+    function toggleMeetingLinkField() {
+      const locationType = document.getElementById('location-type-select').value;
+      const meetingLinkGroup = document.getElementById('meeting-link-group');
+      const meetingLinkHint = document.getElementById('meeting-link-hint');
+
+      if (locationType === 'google_meet') {
+        meetingLinkGroup.style.display = 'none';
+      } else {
+        meetingLinkGroup.style.display = 'block';
+
+        // เปลี่ยน hint ตามประเภท
+        if (locationType === 'zoom') {
+          meetingLinkHint.textContent = 'กรอกลิงก์ Zoom Meeting เช่น https://zoom.us/j/123456789';
+        } else if (locationType === 'phone') {
+          meetingLinkHint.textContent = 'กรอกเบอร์โทรศัพท์ที่จะใช้ติดต่อ';
+        } else if (locationType === 'in_person') {
+          meetingLinkHint.textContent = 'กรอกที่อยู่หรือสถานที่นัดพบ';
+        }
+      }
+    }
+
     function saveEventType() {
       const form = document.getElementById('event-type-form');
       const formData = new FormData(form);
       const data = Object.fromEntries(formData);
 
-      console.log('Saving event type:', data);
-      alert('บันทึกเรียบร้อย! (ในการใช้งานจริงจะส่งข้อมูลไป Make)');
+      // สร้าง ID จากชื่อ
+      data.id = 'custom-' + Date.now();
+      data.duration = parseInt(data.duration);
+
+      // โหลด event types ที่มีอยู่ และเพิ่มอันใหม่
+      const eventTypes = getEventTypes();
+      eventTypes.push(data);
+
+      // บันทึกลง localStorage
+      if (saveEventTypes(eventTypes)) {
+        console.log('Saved event type:', data);
+        alert('✅ บันทึกประเภทนัดหมายเรียบร้อย!');
+        renderEventTypesList(); // รีเฟรชรายการ
+      } else {
+        alert('❌ เกิดข้อผิดพลาดในการบันทึก');
+      }
+
       closeModal('event-type-modal');
       form.reset();
+      toggleMeetingLinkField(); // รีเซ็ต meeting link field
     }
 
     function saveMember() {
@@ -475,9 +518,171 @@
         }
       });
 
-      console.log('Saving availability:', availability);
-      alert('บันทึกเวลาทำงานเรียบร้อย!');
+      // บันทึกลง localStorage จริงๆ
+      if (saveWorkingHours(availability)) {
+        console.log('Saved availability:', availability);
+        alert('✅ บันทึกเวลาทำงานเรียบร้อย! การเปลี่ยนแปลงจะมีผลทันที');
+      } else {
+        alert('❌ เกิดข้อผิดพลาดในการบันทึก กรุณาลองใหม่');
+      }
     }
+
+    // โหลดเวลาทำงานจาก localStorage เมื่อเปิดหน้า
+    function loadAvailabilityUI() {
+      const workingHours = getWorkingHours();
+
+      document.querySelectorAll('.availability-day').forEach(day => {
+        const checkbox = day.querySelector('input[type="checkbox"]');
+        const dayNum = parseInt(checkbox.dataset.day);
+        const hours = workingHours[dayNum];
+
+        const startInput = day.querySelector('input[data-type="start"]');
+        const endInput = day.querySelector('input[data-type="end"]');
+
+        if (hours) {
+          checkbox.checked = true;
+          startInput.value = hours.start;
+          endInput.value = hours.end;
+          startInput.disabled = false;
+          endInput.disabled = false;
+          day.style.opacity = '1';
+        } else {
+          checkbox.checked = false;
+          startInput.disabled = true;
+          endInput.disabled = true;
+          day.style.opacity = '0.6';
+        }
+      });
+    }
+
+    // เรียกโหลดเวลาทำงานเมื่อหน้าโหลดเสร็จ
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAvailabilityUI();
+      renderEventTypesList();
+    });
+
+    // แสดงรายการประเภทนัดหมายจาก localStorage
+    function renderEventTypesList() {
+      const container = document.getElementById('event-types-list');
+      const eventTypes = getEventTypes();
+
+      container.innerHTML = eventTypes.map((event, index) => `
+        <div class="event-type-card" style="border-top-color: ${event.color || '#0069ff'};">
+          <h3 class="event-type-name">${event.name}</h3>
+          <p class="event-type-duration">⏱️ ${event.duration} นาที • ${getLocationIcon(event.location_type)} ${getLocationLabel(event.location_type)}</p>
+          ${event.meeting_link ? `<p class="event-type-link-info" style="font-size: 0.85rem; color: #666; margin: 0.5rem 0;">🔗 ${event.meeting_link}</p>` : ''}
+          <div class="event-type-link">
+            <span style="flex: 1; overflow: hidden; text-overflow: ellipsis;">book.html?event=${event.id}</span>
+            <button class="btn btn-sm btn-secondary" onclick="copyEventLink('${event.id}')">คัดลอก</button>
+          </div>
+          <div class="event-type-actions">
+            <label class="form-checkbox">
+              <input type="checkbox" ${event.enabled !== false ? 'checked' : ''} onchange="toggleEventType(${index})">
+              <span>เปิดใช้งาน</span>
+            </label>
+            <div class="d-flex gap-sm">
+              <button class="btn btn-sm btn-secondary" onclick="editEventType(${index})">แก้ไข</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteEventType(${index})">ลบ</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function getLocationIcon(type) {
+      const icons = { google_meet: '📹', zoom: '💻', phone: '📞', in_person: '📍' };
+      return icons[type] || '📍';
+    }
+
+    function getLocationLabel(type) {
+      const labels = { google_meet: 'Google Meet', zoom: 'Zoom', phone: 'โทรศัพท์', in_person: 'พบหน้า' };
+      return labels[type] || type;
+    }
+
+    function copyEventLink(eventId) {
+      const url = window.location.origin + '/book.html?event=' + eventId;
+      navigator.clipboard.writeText(url).then(() => {
+        alert('✅ คัดลอกลิงก์เรียบร้อย!');
+      });
+    }
+
+    function toggleEventType(index) {
+      const eventTypes = getEventTypes();
+      eventTypes[index].enabled = !eventTypes[index].enabled;
+      saveEventTypes(eventTypes);
+    }
+
+    function deleteEventType(index) {
+      if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบประเภทนัดหมายนี้?')) return;
+
+      const eventTypes = getEventTypes();
+      eventTypes.splice(index, 1);
+      saveEventTypes(eventTypes);
+      renderEventTypesList();
+      alert('✅ ลบประเภทนัดหมายเรียบร้อย!');
+    }
+
+    let editingIndex = null;
+
+    function editEventType(index) {
+      editingIndex = index;
+      const eventTypes = getEventTypes();
+      const event = eventTypes[index];
+
+      // เติมค่าใน form
+      const form = document.getElementById('event-type-form');
+      form.name.value = event.name;
+      form.duration.value = event.duration;
+      form.location_type.value = event.location_type;
+      form.description.value = event.description || '';
+      form.color.value = event.color || '#0069ff';
+
+      if (form.meeting_link) {
+        form.meeting_link.value = event.meeting_link || '';
+      }
+
+      // แสดง meeting link field ถ้าจำเป็น
+      toggleMeetingLinkField();
+
+      // เปลี่ยนชื่อ modal
+      document.querySelector('#event-type-modal .modal-title').textContent = 'แก้ไขประเภทนัดหมาย';
+
+      openEventTypeModal();
+    }
+
+    // แก้ไข saveEventType เพื่อรองรับการแก้ไข
+    const originalSaveEventType = saveEventType;
+    saveEventType = function() {
+      const form = document.getElementById('event-type-form');
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData);
+      data.duration = parseInt(data.duration);
+
+      const eventTypes = getEventTypes();
+
+      if (editingIndex !== null) {
+        // แก้ไขอันที่มีอยู่
+        data.id = eventTypes[editingIndex].id;
+        eventTypes[editingIndex] = { ...eventTypes[editingIndex], ...data };
+        editingIndex = null;
+        document.querySelector('#event-type-modal .modal-title').textContent = 'เพิ่มประเภทนัดหมาย';
+      } else {
+        // เพิ่มอันใหม่
+        data.id = 'custom-' + Date.now();
+        eventTypes.push(data);
+      }
+
+      if (saveEventTypes(eventTypes)) {
+        alert('✅ บันทึกประเภทนัดหมายเรียบร้อย!');
+        renderEventTypesList();
+      } else {
+        alert('❌ เกิดข้อผิดพลาดในการบันทึก');
+      }
+
+      closeModal('event-type-modal');
+      form.reset();
+      toggleMeetingLinkField();
+    };
 
     // Enable/disable time inputs based on checkbox
     document.querySelectorAll('.availability-day input[type="checkbox"]').forEach(checkbox => {

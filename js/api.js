@@ -1,6 +1,6 @@
 /**
- * Calendly Clone - API Module
- * ============================
+ * Just in time meeting - API Module
+ * ==================================
  * Module สำหรับติดต่อกับ Make.com Backend
  */
 

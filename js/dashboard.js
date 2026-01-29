@@ -1,6 +1,6 @@
 /**
- * Calendly Clone - Dashboard Logic
- * ==================================
+ * Just in time meeting - Dashboard Logic
+ * =======================================
  */
 
 class Dashboard {
